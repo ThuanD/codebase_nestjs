@@ -12,7 +12,7 @@ import { PrismaHealthIndicator } from './indicators/prisma.health';
 import {
   ApiTag,
   ApiHealthCheck,
-} from '../docs/health/api-health.decorator';
+} from '../../docs/api/swagger/health/api-health.decorator';
 
 @ApiTag()
 @Controller('health')

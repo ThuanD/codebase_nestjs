@@ -19,8 +19,8 @@ export const HEALTH_CHECK_CONSTANTS = {
   CACHE: {
     /** Default key for cache health checks */
     KEY: 'cache',
-    /** Default TTL for cache test (in seconds) */
-    TTL: 5,
+    /** Default TTL for cache test (in miliseconds) */
+    TTL: 5000,
     /** Test key used for cache health check */
     TEST_KEY: 'health_check_test',
     /** Test value used for cache health check */

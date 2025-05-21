@@ -8,11 +8,7 @@ import * as compression from 'compression';
 import { AppModule } from './app.module';
 import { AppLogger } from './infrastructure/logging/logger.service';
 import { getWinstonLoggerConfig } from './infrastructure/logging/winston.config';
-import {
-  API_PREFIX,
-  API_DEFAULT_VERSION,
-  API_DEFAULT_PREFIX,
-} from './common/constants';
+import { API_CONSTANTS } from './app.constants';
 
 async function bootstrap() {
   const bootstrapLogger = WinstonModule.createLogger(getWinstonLoggerConfig());
@@ -30,11 +26,10 @@ async function bootstrap() {
   logger.log(`Node Environment: ${env}}`);
 
   // Prefix path for API
-  app.setGlobalPrefix(API_PREFIX);
+  app.setGlobalPrefix(API_CONSTANTS.GLOBAL_PREFIX);
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: API_DEFAULT_VERSION,
-    prefix: API_DEFAULT_PREFIX,
+    defaultVersion: API_CONSTANTS.API_DEFAULT_VERSION,
   });
 
   app.use(compression());
@@ -56,13 +51,13 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Auth API')
-    .setDescription('Authentication and authorization API')
-    .setVersion('1.0')
+    .setTitle(API_CONSTANTS.DOCS.TITLE)
+    .setDescription(API_CONSTANTS.DOCS.DESCRIPTION)
+    .setVersion(API_CONSTANTS.DOCS.VERSION)
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/v1/docs', app, documentFactory);
+  SwaggerModule.setup(API_CONSTANTS.DOCS.ENDPOINT, app, documentFactory);
 
   const port = configService.get('BACKEND_PORT');
   await app.listen(port);

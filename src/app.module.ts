@@ -1,6 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import * as Joi from 'joi';
@@ -10,9 +10,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './infrastructure/health/health.module';
 import { getWinstonLoggerConfig } from './infrastructure';
-import { CACHE_TTL, CACHE_MAX_ITEMS } from './common/constants';
+import { CACHE_CONSTANTS } from './app.constants';
 import {
   AppLogger,
+  AllExceptionFilter,
   RequestIdInterceptor,
   RequestLoggingMiddleware,
   PrismaModule,
@@ -38,7 +39,6 @@ const validationSchema = Joi.object({
     .default('development'),
 
   // Server configuration
-  API_PREFIX: Joi.string().default('api'),
   BACKEND_PORT: Joi.number().default(3000),
   CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
 
@@ -70,8 +70,8 @@ const validationSchema = Joi.object({
         port: configService.get('REDIS_PORT'),
         password: configService.get('REDIS_PASSWORD'),
         db: configService.get('REDIS_DB'),
-        ttl: CACHE_TTL,
-        max: CACHE_MAX_ITEMS,
+        ttl: CACHE_CONSTANTS.TTL,
+        max: CACHE_CONSTANTS.MAX_ITEMS,
       }),
       inject: [ConfigService],
     }),
@@ -84,6 +84,10 @@ const validationSchema = Joi.object({
   providers: [
     AppService,
     AppLogger,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionFilter,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestIdInterceptor,
